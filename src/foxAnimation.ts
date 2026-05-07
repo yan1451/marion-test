@@ -1,11 +1,22 @@
 import { AnimatedSprite, Application, Container, Texture } from "pixi.js";
 import { startAnimationLoop, type AnimationEntry } from "./aux";
 import { loadAnimationFramesFromMultipack } from "./multipackLoader";
+import {
+  AnimationDurationSeconds,
+  DEFAULT_UNIFORM_SCALE,
+} from "./animationConstants";
 
 const FOX_CONFIG = {
   IDLE: { anchor: { x: 1, y: -0.85 }, speed: 0.5 },
   WIN: { anchor: { x: 0.935, y: -0.82 }, speed: 0.5 },
 };
+
+const FOX_LAYOUT = {
+  scaleX: -DEFAULT_UNIFORM_SCALE,
+  scaleY: DEFAULT_UNIFORM_SCALE,
+  wrapperWidth: 300,
+  wrapperHeight: 1000,
+} as const;
 
 type FoxAnimationOptions = {
   atlasJsonPath?: string;
@@ -43,20 +54,20 @@ export async function createFoxAnimation(
 
   const loopSequence: AnimationEntry[] = [
     {
-      scaleX: -0.8,
+      scaleX: FOX_LAYOUT.scaleX,
       textures: idleTextures,
       config: FOX_CONFIG.IDLE,
-      duration: 6,
+      duration: AnimationDurationSeconds.FoxIdle,
       loop: true,
-      scaleY: 0.8,
+      scaleY: FOX_LAYOUT.scaleY,
     },
     {
-      scaleX: -0.8,
+      scaleX: FOX_LAYOUT.scaleX,
       textures: winTextures,
       config: FOX_CONFIG.WIN,
-      duration: 2,
+      duration: AnimationDurationSeconds.FoxWin,
       loop: true,
-      scaleY: 0.8,
+      scaleY: FOX_LAYOUT.scaleY,
     },
   ];
 
@@ -64,8 +75,8 @@ export async function createFoxAnimation(
 
   const foxWrapper = new Container({
     layout: {
-      width: 300,
-      height: 1000,
+      width: FOX_LAYOUT.wrapperWidth,
+      height: FOX_LAYOUT.wrapperHeight,
     },
   });
 
