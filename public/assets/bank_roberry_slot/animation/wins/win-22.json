@@ -1,0 +1,53 @@
+{"frames": {
+
+"Big_Win_10.png":
+{
+	"frame": {"x":1,"y":1,"w":778,"h":621},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":5,"w":778,"h":621},
+	"sourceSize": {"w":788,"h":653}
+},
+"Mega_Win_13.png":
+{
+	"frame": {"x":1,"y":624,"w":778,"h":710},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":5,"w":778,"h":710},
+	"sourceSize": {"w":788,"h":728}
+},
+"Mega_Win_18.png":
+{
+	"frame": {"x":781,"y":1,"w":778,"h":711},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":7,"w":778,"h":711},
+	"sourceSize": {"w":788,"h":728}
+},
+"Mega_Win_30.png":
+{
+	"frame": {"x":781,"y":781,"w":778,"h":711},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":7,"w":778,"h":711},
+	"sourceSize": {"w":788,"h":728}
+},
+"Mega_Win_35.png":
+{
+	"frame": {"x":1,"y":1336,"w":778,"h":711},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":7,"w":778,"h":711},
+	"sourceSize": {"w":788,"h":728}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.1",
+	"image": "win-22.png?v=d72b89351a27",
+	"format": "RGBA8888",
+	"size": {"w":1493,"h":2048},
+	"scale": "1",
+	"related_multi_packs": [ "win-0.json", "win-1.json", "win-2.json", "win-3.json", "win-4.json", "win-5.json", "win-6.json", "win-7.json", "win-8.json", "win-9.json", "win-10.json", "win-11.json", "win-12.json", "win-13.json", "win-14.json", "win-15.json", "win-16.json", "win-17.json", "win-18.json", "win-19.json", "win-20.json", "win-21.json", "win-23.json", "win-24.json", "win-25.json", "win-26.json", "win-27.json", "win-28.json", "win-29.json", "win-30.json", "win-31.json", "win-32.json", "win-33.json", "win-34.json", "win-35.json", "win-36.json" ],
+	"smartupdate": "$TexturePacker:SmartUpdate:0782ae731be46655625ffaeff358722f:b8cef0531550d40017c0f124839147b2:cf7029e4abe935413ceefef71788a8e8$"
+}
+}

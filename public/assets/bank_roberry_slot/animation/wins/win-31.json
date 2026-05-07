@@ -1,0 +1,61 @@
+{"frames": {
+
+"Mega_Win_02.png":
+{
+	"frame": {"x":781,"y":1351,"w":778,"h":666},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":47,"w":778,"h":666},
+	"sourceSize": {"w":788,"h":728}
+},
+"Mega_Win_03.png":
+{
+	"frame": {"x":1,"y":1350,"w":778,"h":670},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":41,"w":778,"h":670},
+	"sourceSize": {"w":788,"h":728}
+},
+"Mega_Win_04.png":
+{
+	"frame": {"x":781,"y":1,"w":778,"h":673},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":36,"w":778,"h":673},
+	"sourceSize": {"w":788,"h":728}
+},
+"Mega_Win_43.png":
+{
+	"frame": {"x":781,"y":676,"w":778,"h":673},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":10,"y":45,"w":778,"h":673},
+	"sourceSize": {"w":788,"h":728}
+},
+"Total_Win_01.png":
+{
+	"frame": {"x":1,"y":677,"w":778,"h":671},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":54,"w":778,"h":671},
+	"sourceSize": {"w":778,"h":727}
+},
+"Total_Win_44.png":
+{
+	"frame": {"x":1,"y":1,"w":778,"h":674},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":51,"w":778,"h":674},
+	"sourceSize": {"w":778,"h":727}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.1",
+	"image": "win-31.png?v=d72b89351a27",
+	"format": "RGBA8888",
+	"size": {"w":1560,"h":2021},
+	"scale": "1",
+	"related_multi_packs": [ "win-0.json", "win-1.json", "win-2.json", "win-3.json", "win-4.json", "win-5.json", "win-6.json", "win-7.json", "win-8.json", "win-9.json", "win-10.json", "win-11.json", "win-12.json", "win-13.json", "win-14.json", "win-15.json", "win-16.json", "win-17.json", "win-18.json", "win-19.json", "win-20.json", "win-21.json", "win-22.json", "win-23.json", "win-24.json", "win-25.json", "win-26.json", "win-27.json", "win-28.json", "win-29.json", "win-30.json", "win-32.json", "win-33.json", "win-34.json", "win-35.json", "win-36.json" ],
+	"smartupdate": "$TexturePacker:SmartUpdate:0782ae731be46655625ffaeff358722f:b8cef0531550d40017c0f124839147b2:cf7029e4abe935413ceefef71788a8e8$"
+}
+}
