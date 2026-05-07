@@ -3,6 +3,13 @@ import "@pixi/layout";
 import { LayoutContainer } from "@pixi/layout/components";
 import { createFoxAnimation } from "./foxAnimation";
 import { createObjectAnimations } from "./objectAnimations";
+import { LayerZIndex } from "./animationConstants";
+
+const MAIN_LAYOUT = {
+  rootGap: 2,
+  groupGap: 20,
+  groupBottom: 0,
+} as const;
 
 (async () => {
   // Create a new application
@@ -36,7 +43,7 @@ import { createObjectAnimations } from "./objectAnimations";
       flexDirection: "row",
       alignContent: "center",
       flexWrap: "wrap",
-      gap: 2,
+      gap: MAIN_LAYOUT.rootGap,
     },
     background: bgSprite,
   });
@@ -49,8 +56,8 @@ import { createObjectAnimations } from "./objectAnimations";
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "flex-end",
-      gap: 20,
-      bottom: 0,
+      gap: MAIN_LAYOUT.groupGap,
+      bottom: MAIN_LAYOUT.groupBottom,
     },
     sortableChildren: true,
   });
@@ -62,8 +69,8 @@ import { createObjectAnimations } from "./objectAnimations";
     frameTexture,
   });
 
-  fox.zIndex = 1;
-  objectsContainer.zIndex = 2;
+  fox.zIndex = LayerZIndex.Fox;
+  objectsContainer.zIndex = LayerZIndex.Objects;
   groupContainer.addChild(objectsContainer);
   groupContainer.addChild(fox);
 
