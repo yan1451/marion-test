@@ -24,7 +24,7 @@ export function playTextures(
 ) {
   sprite.textures = textures;
   sprite.animationSpeed = config.speed;
-  sprite.scale.set(scaleX || 1, scaleY || 1);
+  sprite.scale.set(scaleX ?? 1, scaleY ?? 1);
   sprite.anchor.set(config.anchor.x, config.anchor.y);
   sprite.gotoAndPlay(0);
 }
