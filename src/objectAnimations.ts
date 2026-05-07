@@ -10,11 +10,41 @@ import {
 import { gsap } from "gsap";
 import { LayoutContainer } from "@pixi/layout/components";
 import { createWinAnimations } from "./winAnimation";
+import { LayerZIndex } from "./animationConstants";
 
 type ObjectAnimationOptions = {
   atlasJsonPath?: string;
   frameTexture?: Texture;
 };
+
+const OBJECT_LAYOUT = {
+  bgScaleX: 1.7,
+  bgScaleY: 1,
+  bgAnchorX: 0,
+  bgAnchorY: 1.6,
+  bgTop: 10,
+  bgBottom: 0,
+  maxHeight: 800,
+  maxWidth: 1000,
+  containerGap: 50,
+  startY: 170,
+  startX: 90,
+  columnCount: 6,
+  rowCount: 5,
+  rowSpacing: 120,
+  columnSpacing: 160,
+  spriteStartX: 0,
+  spriteStartY: -500,
+  spriteAnchorX: 0.45,
+  spriteAnchorY: 0.45,
+  spriteScale: 0.67,
+  spriteSpeed: 0.4,
+  winFadeDuration: 0.8,
+  dropDuration: 1.2,
+  delayStep: 0.1,
+  dropEase: "back.out(1.5)",
+  showWinDelay: 2,
+} as const;
 
 export async function createObjectAnimations(
   app: Application,
@@ -34,30 +64,30 @@ export async function createObjectAnimations(
   const atlasImagePath = `${atlasBasePath}${atlasImageFileName}`;
   const textureObjects = await Assets.load(atlasImagePath);
   const bgSprite = new Sprite(frameTexture);
-  bgSprite.scale.set(1.7, 1);
-  bgSprite.anchor.set(0, 1.6);
+  bgSprite.scale.set(OBJECT_LAYOUT.bgScaleX, OBJECT_LAYOUT.bgScaleY);
+  bgSprite.anchor.set(OBJECT_LAYOUT.bgAnchorX, OBJECT_LAYOUT.bgAnchorY);
 
   bgSprite.layout = {
     position: "relative",
-    top: 10,
-    bottom: 0,
-    maxHeight: 800,
-    maxWidth: 1000,
+    top: OBJECT_LAYOUT.bgTop,
+    bottom: OBJECT_LAYOUT.bgBottom,
+    maxHeight: OBJECT_LAYOUT.maxHeight,
+    maxWidth: OBJECT_LAYOUT.maxWidth,
   };
 
   const spriteSheet = new Spritesheet(textureObjects, objectsFramesData.data);
   await spriteSheet.parse();
-  const InitialSpaceBetweenRows = 170;
-  let spaceBetweenColumns = 90;
+  const initialY = OBJECT_LAYOUT.startY;
+  let columnX = OBJECT_LAYOUT.startX;
 
   const container = new LayoutContainer({
     layout: {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      maxHeight: 800,
-      maxWidth: 1000,
-      gap: 50,
+      maxHeight: OBJECT_LAYOUT.maxHeight,
+      maxWidth: OBJECT_LAYOUT.maxWidth,
+      gap: OBJECT_LAYOUT.containerGap,
     },
   });
   container.sortableChildren = true;
@@ -65,7 +95,7 @@ export async function createObjectAnimations(
   const animations = Object.keys(spriteSheet.animations);
   const { container: winContainer, startWinLoop } =
     await createWinAnimations(app);
-  winContainer.zIndex = 1000;
+  winContainer.zIndex = LayerZIndex.WinOverlay;
 
   let globalDelay = 0;
 
@@ -73,51 +103,62 @@ export async function createObjectAnimations(
     startWinLoop();
     winContainer.visible = true;
     winContainer.alpha = 0;
-    winContainer.position.set(500, 380);
+    winContainer.position.set(0, 0);
+
+    app.stage.sortableChildren = true;
 
     // Adiciona só uma vez e mantém no topo
     if (!winContainer.parent) {
-      container.addChild(winContainer);
+      app.stage.addChild(winContainer);
     } else {
-      container.setChildIndex(winContainer, container.children.length - 1);
+      app.stage.setChildIndex(winContainer, app.stage.children.length - 1);
     }
 
     gsap.to(winContainer, {
       alpha: 1,
-      duration: 0.8,
+      duration: OBJECT_LAYOUT.winFadeDuration,
       ease: "power2.out",
     });
   }
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < OBJECT_LAYOUT.columnCount; i++) {
     const columnContainer = new Container();
-    columnContainer.position.set(spaceBetweenColumns, InitialSpaceBetweenRows);
+    columnContainer.position.set(columnX, initialY);
     container.addChild(columnContainer);
 
-    [0, 1, 2, 3, 4].forEach((index) => {
+    Array.from(
+      { length: OBJECT_LAYOUT.rowCount },
+      (_, rowIndex) => rowIndex,
+    ).forEach((rowIndex) => {
       const animationKey =
         animations[Math.floor(Math.random() * animations.length)];
       const sprite = new AnimatedSprite(spriteSheet.animations[animationKey]);
 
-      const targetY = index * 120;
+      const targetY = rowIndex * OBJECT_LAYOUT.rowSpacing;
 
-      sprite.x = 0;
-      sprite.y = -500;
-      sprite.anchor.set(0.45, 0.45);
-      sprite.scale.set(0.67);
-      sprite.animationSpeed = 0.4;
+      sprite.x = OBJECT_LAYOUT.spriteStartX;
+      sprite.y = OBJECT_LAYOUT.spriteStartY;
+      sprite.anchor.set(
+        OBJECT_LAYOUT.spriteAnchorX,
+        OBJECT_LAYOUT.spriteAnchorY,
+      );
+      sprite.scale.set(OBJECT_LAYOUT.spriteScale);
+      sprite.animationSpeed = OBJECT_LAYOUT.spriteSpeed;
 
       columnContainer.addChild(sprite);
       animatedSprites.push(sprite);
 
       gsap.to(sprite, {
         y: targetY,
-        duration: 1.2,
-        delay: globalDelay * 0.1,
-        ease: "back.out(1.5)",
+        duration: OBJECT_LAYOUT.dropDuration,
+        delay: globalDelay * OBJECT_LAYOUT.delayStep,
+        ease: OBJECT_LAYOUT.dropEase,
         onComplete: async () => {
-          if (i === 5 && index === 4) {
-            gsap.delayedCall(2, () => {
+          if (
+            i === OBJECT_LAYOUT.columnCount - 1 &&
+            rowIndex === OBJECT_LAYOUT.rowCount - 1
+          ) {
+            gsap.delayedCall(OBJECT_LAYOUT.showWinDelay, () => {
               showWinAnimation();
             });
           }
@@ -127,7 +168,7 @@ export async function createObjectAnimations(
       globalDelay++;
     });
 
-    spaceBetweenColumns += 160;
+    columnX += OBJECT_LAYOUT.columnSpacing;
   }
 
   container.addChildAt(bgSprite, 0);
