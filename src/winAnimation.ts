@@ -7,6 +7,10 @@ import {
 } from "pixi.js";
 import { playTextures, startAnimationLoop, type AnimationEntry } from "./aux";
 import { loadAnimationFramesFromMultipack } from "./multipackLoader";
+import {
+  AnimationDurationSeconds,
+  DEFAULT_UNIFORM_SCALE,
+} from "./animationConstants";
 
 type WinAnimationOptions = {
   atlasJsonPath?: string;
@@ -23,6 +27,11 @@ const WIN_CONFIG = {
   TOTAL_WIN: { anchor: { x: 0.5, y: 0.5 }, speed: 0.5 },
 };
 
+const WIN_OVERLAY = {
+  color: 0x000000,
+  alpha: 0.7,
+} as const;
+
 export async function createWinAnimations(
   _app: Application,
   {
@@ -38,18 +47,10 @@ export async function createWinAnimations(
   container.eventMode = "none";
   container.alpha = 0;
 
-  // --- ADICIONANDO O FUNDO ESCURO ---
   const background = new Graphics();
-  background.beginFill(0x000000, 0.7); // Cor preta com 70% de opacidade
-
-  // Define o tamanho do fundo baseado no tamanho da aplicação (tela cheia)
-  background.drawRect(0, 0, _app.screen.width * 2, _app.screen.height * 2);
-  background.endFill();
-
-  // Centraliza o ponto de registro do fundo para facilitar o posicionamento do container
-  background.pivot.set(_app.screen.width / 2, _app.screen.height / 2);
-
-  // Adiciona o fundo primeiro (fica atrás de tudo no container)
+  background
+    .rect(0, 0, _app.screen.width, _app.screen.height)
+    .fill({ color: WIN_OVERLAY.color, alpha: WIN_OVERLAY.alpha });
   container.addChild(background);
 
   const winFrames = await loadAnimationFramesFromMultipack({
@@ -76,6 +77,7 @@ export async function createWinAnimations(
   const totalWinTextures = getTexturesByAnimation(totalWinAnimationName);
 
   const animatedSprite = new AnimatedSprite(bigWinTextures);
+  animatedSprite.position.set(_app.screen.width / 2, _app.screen.height / 2);
 
   playTextures(animatedSprite, bigWinTextures, WIN_CONFIG.BIG_WIN);
 
@@ -83,34 +85,34 @@ export async function createWinAnimations(
     {
       textures: bigWinTextures,
       config: WIN_CONFIG.BIG_WIN,
-      duration: 4,
+      duration: AnimationDurationSeconds.BigWin,
       loop: true,
-      scaleX: 0.8,
-      scaleY: 0.8,
+      scaleX: DEFAULT_UNIFORM_SCALE,
+      scaleY: DEFAULT_UNIFORM_SCALE,
     },
     {
       textures: megaWinTextures,
       config: WIN_CONFIG.MEGA_WIN,
-      duration: 3,
+      duration: AnimationDurationSeconds.MegaWin,
       loop: true,
-      scaleX: 0.8,
-      scaleY: 0.8,
+      scaleX: DEFAULT_UNIFORM_SCALE,
+      scaleY: DEFAULT_UNIFORM_SCALE,
     },
     {
       textures: superMegaWinTextures,
       config: WIN_CONFIG.SUPER_MEGA_WIN,
-      duration: 3,
+      duration: AnimationDurationSeconds.SuperMegaWin,
       loop: true,
-      scaleX: 0.8,
-      scaleY: 0.8,
+      scaleX: DEFAULT_UNIFORM_SCALE,
+      scaleY: DEFAULT_UNIFORM_SCALE,
     },
     {
       textures: totalWinTextures,
       config: WIN_CONFIG.TOTAL_WIN,
-      duration: 3,
+      duration: AnimationDurationSeconds.TotalWin,
       loop: false,
-      scaleX: 0.8,
-      scaleY: 0.8,
+      scaleX: DEFAULT_UNIFORM_SCALE,
+      scaleY: DEFAULT_UNIFORM_SCALE,
     },
   ];
 
