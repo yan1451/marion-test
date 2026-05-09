@@ -119,12 +119,14 @@ export async function createWinAnimations(
   container.addChild(animatedSprite);
 
   const startWinLoop = () => {
+    container.addChild(animatedSprite);
     playTextures(animatedSprite, bigWinTextures, WIN_CONFIG.BIG_WIN);
     startAnimationLoop(animatedSprite, loopSequence);
   };
 
   const stopWinLoop = () => {
     animatedSprite.gotoAndStop(0);
+    container.removeChild(animatedSprite);
   };
 
   return { container, startWinLoop, stopWinLoop };
