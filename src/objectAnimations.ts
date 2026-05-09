@@ -32,18 +32,19 @@ const OBJECT_LAYOUT = {
   columnCount: 6,
   rowCount: 5,
   rowSpacing: 120,
-  columnSpacing: 160,
+  columnSpacing: 152,
   spriteStartX: 0,
   spriteStartY: -500,
   spriteAnchorX: 0.45,
   spriteAnchorY: 0.45,
   spriteScale: 0.67,
   spriteSpeed: 0.4,
-  winFadeDuration: 0.8,
-  dropDuration: 1.2,
-  delayStep: 0.1,
-  dropEase: "back.out(1.5)",
-  showWinDelay: 2,
+  winFadeDuration: 0.4,
+  dropDuration: 0.1,
+  delayStep: 0.02,
+  dropEase: "none",
+  showWinDelay: 0.5,
+  winLoopDuration: 12,
 } as const;
 
 export async function createObjectAnimations(
@@ -78,7 +79,6 @@ export async function createObjectAnimations(
   const spriteSheet = new Spritesheet(textureObjects, objectsFramesData.data);
   await spriteSheet.parse();
   const initialY = OBJECT_LAYOUT.startY;
-  let columnX = OBJECT_LAYOUT.startX;
 
   const container = new LayoutContainer({
     layout: {
@@ -88,18 +88,21 @@ export async function createObjectAnimations(
       maxHeight: OBJECT_LAYOUT.maxHeight,
       maxWidth: OBJECT_LAYOUT.maxWidth,
       gap: OBJECT_LAYOUT.containerGap,
+      marginLeft: 130,
     },
   });
+
   container.sortableChildren = true;
   const animatedSprites: AnimatedSprite[] = [];
   const animations = Object.keys(spriteSheet.animations);
-  const { container: winContainer, startWinLoop } =
-    await createWinAnimations(app);
+  const {
+    container: winContainer,
+    startWinLoop,
+    stopWinLoop,
+  } = await createWinAnimations(app);
   winContainer.zIndex = LayerZIndex.WinOverlay;
 
-  let globalDelay = 0;
-
-  function showWinAnimation() {
+  function showWinAnimation(onFinished: () => void) {
     startWinLoop();
     winContainer.visible = true;
     winContainer.alpha = 0;
@@ -118,59 +121,86 @@ export async function createObjectAnimations(
       alpha: 1,
       duration: OBJECT_LAYOUT.winFadeDuration,
       ease: "power2.out",
+      onComplete: () => {
+        gsap.delayedCall(OBJECT_LAYOUT.winLoopDuration, () => {
+          stopWinLoop();
+          winContainer.visible = false;
+          onFinished();
+        });
+      },
     });
   }
 
-  for (let i = 0; i < OBJECT_LAYOUT.columnCount; i++) {
-    const columnContainer = new Container();
-    columnContainer.position.set(columnX, initialY);
-    container.addChild(columnContainer);
+  const startObjectAnimations = ({ animate }: { animate: boolean }) => {
+    return new Promise((resolve) => {
+      animatedSprites.forEach((sprite) => sprite.destroy());
+      animatedSprites.length = 0;
+      let columnX = OBJECT_LAYOUT.startX;
+      let globalDelay = 0;
 
-    Array.from(
-      { length: OBJECT_LAYOUT.rowCount },
-      (_, rowIndex) => rowIndex,
-    ).forEach((rowIndex) => {
-      const animationKey =
-        animations[Math.floor(Math.random() * animations.length)];
-      const sprite = new AnimatedSprite(spriteSheet.animations[animationKey]);
+      for (let i = 0; i < OBJECT_LAYOUT.columnCount; i++) {
+        const columnContainer = new Container();
+        columnContainer.position.set(columnX, initialY);
+        container.addChild(columnContainer);
 
-      const targetY = rowIndex * OBJECT_LAYOUT.rowSpacing;
+        Array.from(
+          { length: OBJECT_LAYOUT.rowCount },
+          (_, rowIndex) => rowIndex,
+        ).forEach((rowIndex) => {
+          const animationKey =
+            animations[Math.floor(Math.random() * animations.length)];
+          const sprite = new AnimatedSprite(
+            spriteSheet.animations[animationKey],
+          );
 
-      sprite.x = OBJECT_LAYOUT.spriteStartX;
-      sprite.y = OBJECT_LAYOUT.spriteStartY;
-      sprite.anchor.set(
-        OBJECT_LAYOUT.spriteAnchorX,
-        OBJECT_LAYOUT.spriteAnchorY,
-      );
-      sprite.scale.set(OBJECT_LAYOUT.spriteScale);
-      sprite.animationSpeed = OBJECT_LAYOUT.spriteSpeed;
+          const targetY = rowIndex * OBJECT_LAYOUT.rowSpacing;
 
-      columnContainer.addChild(sprite);
-      animatedSprites.push(sprite);
+          sprite.x = OBJECT_LAYOUT.spriteStartX;
+          sprite.y = OBJECT_LAYOUT.spriteStartY;
+          sprite.anchor.set(
+            OBJECT_LAYOUT.spriteAnchorX,
+            OBJECT_LAYOUT.spriteAnchorY,
+          );
+          sprite.scale.set(OBJECT_LAYOUT.spriteScale);
+          sprite.animationSpeed = OBJECT_LAYOUT.spriteSpeed;
 
-      gsap.to(sprite, {
-        y: targetY,
-        duration: OBJECT_LAYOUT.dropDuration,
-        delay: globalDelay * OBJECT_LAYOUT.delayStep,
-        ease: OBJECT_LAYOUT.dropEase,
-        onComplete: async () => {
-          if (
-            i === OBJECT_LAYOUT.columnCount - 1 &&
-            rowIndex === OBJECT_LAYOUT.rowCount - 1
-          ) {
-            gsap.delayedCall(OBJECT_LAYOUT.showWinDelay, () => {
-              showWinAnimation();
+          columnContainer.addChild(sprite);
+          animatedSprites.push(sprite);
+
+          if (animate) {
+            gsap.to(sprite, {
+              y: targetY,
+              duration: OBJECT_LAYOUT.dropDuration,
+              delay: globalDelay * OBJECT_LAYOUT.delayStep,
+              ease: OBJECT_LAYOUT.dropEase,
+              onComplete: async () => {
+                if (
+                  i === OBJECT_LAYOUT.columnCount - 1 &&
+                  rowIndex === OBJECT_LAYOUT.rowCount - 1
+                ) {
+                  gsap.delayedCall(OBJECT_LAYOUT.showWinDelay, () => {
+                    showWinAnimation(() => {
+                      resolve(true);
+                    });
+                  });
+                }
+              },
             });
+          } else {
+            sprite.y = targetY;
           }
-        },
-      });
-      sprite.play();
-      globalDelay++;
-    });
 
-    columnX += OBJECT_LAYOUT.columnSpacing;
-  }
+          sprite.play();
+          globalDelay++;
+        });
+        console.log(columnX);
+        columnX += OBJECT_LAYOUT.columnSpacing;
+      }
+    });
+  };
+
+  startObjectAnimations({ animate: false });
 
   container.addChildAt(bgSprite, 0);
-  return { container, animatedSprites };
+  return { container, animatedSprites, startObjectAnimations };
 }
