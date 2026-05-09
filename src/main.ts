@@ -16,8 +16,8 @@ const MAIN_LAYOUT = {
   const app = new Application();
 
   await app.init({
-    background: "#1099bb",
     resizeTo: document.getElementById("pixi-container")!,
+    backgroundAlpha: 0,
   });
 
   document.getElementById("pixi-container")!.appendChild(app.canvas);
@@ -63,16 +63,46 @@ const MAIN_LAYOUT = {
   });
 
   app.stage.addChild(container);
+  let spinAnimation = false;
 
   const fox = await createFoxAnimation(app);
-  const { container: objectsContainer } = await createObjectAnimations(app, {
-    frameTexture,
-  });
+  const { container: objectsContainer, startObjectAnimations } =
+    await createObjectAnimations(app, {
+      frameTexture,
+    });
 
   fox.zIndex = LayerZIndex.Fox;
   objectsContainer.zIndex = LayerZIndex.Objects;
   groupContainer.addChild(objectsContainer);
   groupContainer.addChild(fox);
 
+  const button = new Sprite(
+    await Assets.load("/assets/bank_roberry_slot/animation/button.png"),
+  );
+  button.anchor.set(0.5);
+  button.x = app.screen.width / 1.364;
+  button.y = app.screen.height / 1.1;
+  button.scale.set(0.9, 0.8);
+
+  button.eventMode = "static";
+  button.cursor = "pointer";
+
+  button.on("pointerdown", onClick);
+
   container.addChild(groupContainer);
+  container.addChild(button);
+
+  async function onClick() {
+    if (spinAnimation) return;
+
+    spinAnimation = true;
+    button.alpha = 0.5;
+    button.cursor = "default";
+
+    await startObjectAnimations({ animate: true });
+
+    spinAnimation = false;
+    button.alpha = 1;
+    button.cursor = "pointer";
+  }
 })();
