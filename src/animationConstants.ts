@@ -1,6 +1,6 @@
 export enum LayerZIndex {
-  Fox = 1,
-  Objects = 2,
+  Fox = 2,
+  Objects = 1,
   WinOverlay = 1000,
 }
 
