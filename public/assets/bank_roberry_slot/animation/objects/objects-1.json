@@ -11526,7 +11526,7 @@
 	"meta": {
 		"app": "https://www.codeandweb.com/texturepacker",
 		"version": "1.1",
-		"image": "/objects-1.png",
+		"image": "objects-1.png",
 		"format": "RGBA8888",
 		"size": {
 			"w": 2045,
