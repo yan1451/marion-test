@@ -1,10 +1,11 @@
-import { AnimatedSprite, Application, Container, Texture } from "pixi.js";
-import { startAnimationLoop, type AnimationEntry } from "./aux";
-import { loadAnimationFramesFromMultipack } from "./multipackLoader";
+import { AnimatedSprite, Application, Container } from "pixi.js";
 import {
-  AnimationDurationSeconds,
-  DEFAULT_UNIFORM_SCALE,
-} from "./animationConstants";
+  startAnimationLoop,
+  type AnimationEntry,
+  getTexturesByAnimation,
+} from "./aux";
+import { loadAnimationFramesFromMultipack } from "./multipackLoader";
+import { AnimationDurationSeconds, DEFAULT_UNIFORM_SCALE } from "./constants";
 
 const FOX_CONFIG = {
   IDLE: { anchor: { x: 1, y: -0.85 }, speed: 0.5 },
@@ -19,7 +20,7 @@ const FOX_LAYOUT = {
 } as const;
 
 type FoxAnimationOptions = {
-  atlasJsonPath?: string;
+  atlasJsonPath: string;
   idleAnimationName?: string;
   winAnimationName?: string;
 };
@@ -27,10 +28,10 @@ type FoxAnimationOptions = {
 export async function createFoxAnimation(
   _app: Application,
   {
-    atlasJsonPath = "/assets/bank_roberry_slot/animation/fox/fox-1.json",
+    atlasJsonPath,
     idleAnimationName = "Fox-Idle",
     winAnimationName = "Idle",
-  }: FoxAnimationOptions = {},
+  }: FoxAnimationOptions,
 ) {
   const foxFrames = await loadAnimationFramesFromMultipack({
     atlasJsonPath,
@@ -38,13 +39,8 @@ export async function createFoxAnimation(
     sortFramesByIndex: true,
   });
 
-  const getTexturesByAnimation = (animationName: string): Texture[] =>
-    foxFrames
-      .filter((frame) => frame.frameName.startsWith(`${animationName}_`))
-      .map((frame) => frame.texture);
-
-  const idleTextures = getTexturesByAnimation(idleAnimationName);
-  const winTextures = getTexturesByAnimation(winAnimationName);
+  const idleTextures = getTexturesByAnimation(foxFrames, idleAnimationName);
+  const winTextures = getTexturesByAnimation(foxFrames, winAnimationName);
 
   if (!idleTextures.length || !winTextures.length) {
     throw new Error("Animacoes do fox nao encontradas no atlas multipack.");
@@ -71,7 +67,7 @@ export async function createFoxAnimation(
     },
   ];
 
-  startAnimationLoop(animatedSprite, loopSequence);
+  startAnimationLoop(animatedSprite, loopSequence, { repeat: true });
 
   const foxWrapper = new Container({
     layout: {
