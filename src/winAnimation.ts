@@ -3,14 +3,18 @@ import {
   Application,
   Container,
   Graphics,
-  Texture,
+  Text,
+  Assets,
 } from "pixi.js";
-import { playTextures, startAnimationLoop, type AnimationEntry } from "./aux";
-import { loadAnimationFramesFromMultipack } from "./multipackLoader";
 import {
-  AnimationDurationSeconds,
-  DEFAULT_UNIFORM_SCALE,
-} from "./animationConstants";
+  startAnimationLoop,
+  type AnimationEntry,
+  animateWinCounter,
+  getTexturesByAnimation,
+} from "./aux";
+import { loadAnimationFramesFromMultipack } from "./multipackLoader";
+import { AnimationDurationSeconds, DEFAULT_UNIFORM_SCALE } from "./constants";
+import { paths } from "./constants";
 
 type WinAnimationOptions = {
   atlasJsonPath?: string;
@@ -23,7 +27,7 @@ type WinAnimationOptions = {
 const WIN_CONFIG = {
   BIG_WIN: { anchor: { x: 0.5, y: 0.5 }, speed: 0.5 },
   MEGA_WIN: { anchor: { x: 0.5, y: 0.5 }, speed: 0.5 },
-  SUPER_MEGA_WIN: { anchor: { x: 0.5, y: 0.5 }, speed: 0.5 },
+  SUPER_MEGA_WIN: { anchor: { x: 0.5, y: 0.54 }, speed: 0.5 },
   TOTAL_WIN: { anchor: { x: 0.5, y: 0.5 }, speed: 0.5 },
 };
 
@@ -35,7 +39,7 @@ const WIN_OVERLAY = {
 export async function createWinAnimations(
   _app: Application,
   {
-    atlasJsonPath = "/assets/bank_roberry_slot/animation/wins/win-0.json",
+    atlasJsonPath = paths.wins,
     bigWinAnimationName = "Big_Win",
     megaWinAnimationName = "Mega_Win",
     superMegaWinAnimationName = "Super_Mega_Win",
@@ -43,6 +47,23 @@ export async function createWinAnimations(
   }: WinAnimationOptions = {},
 ) {
   const container = new Container();
+
+  const font = await Assets.load(paths.font);
+
+  const winCounterText = new Text({
+    text: "0",
+    style: {
+      fill: "#e5d206",
+      fontFamily: font.family,
+      fontSize: 100,
+      fontWeight: "bold",
+      stroke: "#ff4d00",
+    },
+  });
+
+  winCounterText.position.set(_app.screen.width / 2, _app.screen.height / 2.2);
+  winCounterText.anchor.set(0.5, 0.5);
+
   container.visible = false;
   container.eventMode = "none";
   container.alpha = 0;
@@ -64,22 +85,22 @@ export async function createWinAnimations(
     sortFramesByIndex: true,
   });
 
-  const getTexturesByAnimation = (animationName: string): Texture[] =>
-    winFrames
-      .filter((frame) => frame.frameName.startsWith(`${animationName}_`))
-      .map((frame) => frame.texture);
-
-  const bigWinTextures = getTexturesByAnimation(bigWinAnimationName);
-  const megaWinTextures = getTexturesByAnimation(megaWinAnimationName);
+  const bigWinTextures = getTexturesByAnimation(winFrames, bigWinAnimationName);
+  const megaWinTextures = getTexturesByAnimation(
+    winFrames,
+    megaWinAnimationName,
+  );
   const superMegaWinTextures = getTexturesByAnimation(
+    winFrames,
     superMegaWinAnimationName,
   );
-  const totalWinTextures = getTexturesByAnimation(totalWinAnimationName);
+  const totalWinTextures = getTexturesByAnimation(
+    winFrames,
+    totalWinAnimationName,
+  );
 
   const animatedSprite = new AnimatedSprite(bigWinTextures);
   animatedSprite.position.set(_app.screen.width / 2, _app.screen.height / 2);
-
-  playTextures(animatedSprite, bigWinTextures, WIN_CONFIG.BIG_WIN);
 
   const loopSequence: AnimationEntry[] = [
     {
@@ -116,12 +137,20 @@ export async function createWinAnimations(
     },
   ];
 
-  container.addChild(animatedSprite);
-
-  const startWinLoop = () => {
+  const startWinLoop = (winAmount: number) => {
     container.addChild(animatedSprite);
-    playTextures(animatedSprite, bigWinTextures, WIN_CONFIG.BIG_WIN);
-    startAnimationLoop(animatedSprite, loopSequence);
+    container.addChild(winCounterText);
+    animateWinCounter(
+      winCounterText,
+      winAmount,
+      AnimationDurationSeconds.FoxIdle,
+    );
+    return new Promise<void>((resolve) => {
+      startAnimationLoop(animatedSprite, loopSequence, {
+        repeat: false,
+        onComplete: resolve,
+      });
+    });
   };
 
   const stopWinLoop = () => {
